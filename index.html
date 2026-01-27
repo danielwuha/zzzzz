@@ -1,0 +1,1324 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Candidate Info Form</title>
+  <style>
+    :root {
+      --bg: #f7f4ef;
+      --ink: #1b1b1b;
+      --muted: #6c6c6c;
+      --accent: #0e7c7b;
+      --accent-2: #ff8a00;
+      --card: #ffffff;
+      --border: #e3ded4;
+      --shadow: 0 12px 30px rgba(0,0,0,0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(1200px 600px at 20% 10%, #fff7e6 0%, transparent 60%),
+                  radial-gradient(900px 500px at 80% 0%, #e3f6f6 0%, transparent 55%),
+                  var(--bg);
+    }
+
+    header {
+      padding: 48px 20px 24px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 3vw, 2.8rem);
+      letter-spacing: 0.02em;
+    }
+
+    header p {
+      margin: 0 auto;
+      max-width: 700px;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 0 20px 60px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: visible;
+    }
+
+    .card h2 {
+      margin: 0 0 16px;
+      font-size: 1.2rem;
+    }
+
+    .row {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    input[type="time"],
+    input[type="email"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      font-size: 0.95rem;
+      background: #fffdf9;
+    }
+
+    textarea { min-height: 90px; }
+
+    .toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toggle input {
+      accent-color: var(--accent);
+      width: 18px;
+      height: 18px;
+    }
+
+    .weekdays {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 8px;
+    }
+
+    .weekday {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fdfbf6;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    button {
+      padding: 12px 18px;
+      border-radius: 12px;
+      border: none;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 8px 20px rgba(14,124,123,0.25);
+    }
+
+    .secondary {
+      background: #f3efe6;
+      color: var(--ink);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .output {
+      background: #0f1f1e;
+      color: #e0f2f1;
+      padding: 16px;
+      border-radius: 12px;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 0.85rem;
+      overflow-x: auto;
+      max-height: 280px;
+    }
+
+    .banner {
+      margin-top: 16px;
+      padding: 12px 14px;
+      background: #fff2d7;
+      border: 1px solid #f0d9a3;
+      border-radius: 12px;
+      color: #6b4d1f;
+      display: none;
+    }
+
+    .range-display {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px dashed #d0c5b3;
+      background: #fff9ef;
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+    }
+
+    .range-display.error {
+      border-color: #d24b4b;
+      background: #fff0f0;
+    }
+
+    .calendar-wrap {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      background: #fffdf9;
+      margin-bottom: 16px;
+    }
+
+    .calendar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .calendar-title {
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+
+    .calendar-nav {
+      background: #f3efe6;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .calendar-weekdays,
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+
+    .calendar-weekdays span {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .calendar-day {
+      height: 38px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      background: #f8f5ee;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .calendar-day.outside {
+      opacity: 0.4;
+    }
+
+    .calendar-day.selected {
+      background: #0e7c7b;
+      color: white;
+    }
+
+    .calendar-day.in-range {
+      background: #bfe9e8;
+    }
+
+    .calendar-actions {
+      margin-top: 12px;
+    }
+
+    .centre-select {
+      position: relative;
+      z-index: 5;
+    }
+
+    .centre-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 2px solid #2f5bff;
+      background: #ffffff;
+      cursor: text;
+    }
+
+    .centre-control:focus-within {
+      box-shadow: 0 0 0 3px rgba(47, 91, 255, 0.2);
+    }
+
+    .centre-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .centre-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #f1f3f7;
+      font-weight: 600;
+      color: #1f2430;
+    }
+
+    .centre-tag button {
+      border: none;
+      background: #1f2430;
+      color: #fff;
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 12px;
+      line-height: 1;
+    }
+
+    #centreFilter {
+      flex: 1;
+      min-width: 160px;
+      border: none;
+      outline: none;
+      font-size: 0.95rem;
+      padding: 6px 4px;
+    }
+
+    .centre-caret {
+      margin-left: auto;
+      color: #596072;
+      font-size: 1.2rem;
+    }
+
+    .centre-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      border-radius: 14px;
+      border: 1px solid #e0e5ef;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+      max-height: 260px;
+      overflow-y: auto;
+      display: none;
+      z-index: 10;
+    }
+
+    .card-centres {
+      z-index: 6;
+    }
+
+    .centre-menu.open {
+      display: block;
+    }
+
+    .centre-option {
+      padding: 12px 16px;
+      font-weight: 600;
+      cursor: pointer;
+      color: #1f2430;
+    }
+
+    .centre-option:hover {
+      background: #2f5bff;
+      color: #ffffff;
+    }
+
+    .centre-option.selected {
+      background: #f1f3f7;
+      cursor: not-allowed;
+    }
+
+    #weekdaySection {
+      display: none;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .card { animation: fadeUp 0.5s ease both; }
+      .card:nth-child(2) { animation-delay: 0.05s; }
+      .card:nth-child(3) { animation-delay: 0.1s; }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Booking Preferences</h1>
+    <p>Fill out the details below. At the end, you will see a confirmation and a ready-to-send message for WeChat.</p>
+  </header>
+
+  <main>
+    <form id="infoForm" class="grid">
+      <section class="card">
+        <h2>Contact & Account</h2>
+        <div class="row">
+          <div>
+            <label for="wechatName">WeChat Name</label>
+            <input id="wechatName" name="wechatName" type="text" placeholder="WeChat name" />
+          </div>
+          <div>
+            <label for="xiaohongshuName">Xiaohongshu Name</label>
+            <input id="xiaohongshuName" name="xiaohongshuName" type="text" placeholder="Xiaohongshu name" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="toggle">
+            <input id="changeBooking" type="checkbox" />
+            <label for="changeBooking">Change Booking</label>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Date & Time Preferences</h2>
+        <div class="row">
+          <div>
+            <label>Date Range</label>
+            <div class="range-display" id="rangeDisplay">Select a start and end date</div>
+            <input id="minDate" type="date" required hidden />
+            <input id="maxDate" type="date" required hidden />
+          </div>
+          <div>
+            <label for="minTime">Min Time</label>
+            <input id="minTime" type="time" value="00:00" required />
+          </div>
+          <div>
+            <label for="maxTime">Max Time</label>
+            <input id="maxTime" type="time" value="23:59" required />
+          </div>
+        </div>
+        <div class="calendar-wrap" aria-label="Date range picker">
+          <div class="calendar-header">
+            <button type="button" class="calendar-nav" id="prevMonth" aria-label="Previous month">Prev</button>
+            <div class="calendar-title" id="calendarTitle"></div>
+            <button type="button" class="calendar-nav" id="nextMonth" aria-label="Next month">Next</button>
+          </div>
+          <div class="calendar-weekdays">
+            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+          </div>
+          <div class="calendar-grid" id="calendarGrid"></div>
+        <div class="calendar-actions">
+          <button class="secondary" type="button" id="clearRange">Clear range</button>
+        </div>
+      </div>
+        <div class="row">
+          <div class="toggle">
+            <input id="toggleWeekdays" type="checkbox" />
+            <label for="toggleWeekdays">To specify the day of week?</label>
+          </div>
+        </div>
+        <div id="weekdaySection">
+          <label>Select the day you need</label>
+          <div class="weekdays" id="weekdayGroup">
+            <label class="weekday"><input type="checkbox" value="0" />Sunday</label>
+            <label class="weekday"><input type="checkbox" value="1" />Monday</label>
+            <label class="weekday"><input type="checkbox" value="2" />Tuesday</label>
+            <label class="weekday"><input type="checkbox" value="3" />Wednesday</label>
+            <label class="weekday"><input type="checkbox" value="4" />Thursday</label>
+            <label class="weekday"><input type="checkbox" value="5" />Friday</label>
+            <label class="weekday"><input type="checkbox" value="6" />Saturday</label>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" id="candidateSection">
+        <h2>Candidate Details</h2>
+        <div class="row">
+          <div>
+            <label for="title">Title</label>
+            <select id="title">
+              <option>Mr</option>
+              <option>Mrs</option>
+              <option>Miss</option>
+              <option>Ms</option>
+              <option>Pastor</option>
+              <option>Captain</option>
+              <option>Lord</option>
+              <option>Lady</option>
+              <option>Dr</option>
+              <option>Mx</option>
+              <option>Rev</option>
+              <option>Sir</option>
+            </select>
+          </div>
+          <div>
+            <label for="firstName">First Name</label>
+            <input id="firstName" type="text" required />
+          </div>
+          <div>
+            <label for="surname">Surname</label>
+            <input id="surname" type="text" required />
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="address1">Address Line 1</label>
+            <input id="address1" type="text" />
+          </div>
+          <div>
+            <label for="address2">Address Line 2</label>
+            <input id="address2" type="text" />
+          </div>
+          <div>
+            <label for="town">Town/City</label>
+            <input id="town" type="text" />
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="postcode">Postcode</label>
+            <input id="postcode" type="text" />
+          </div>
+          <div>
+            <label for="email">Email</label>
+            <input id="email" type="email" />
+          </div>
+          <div>
+            <label for="phone">Contact Number</label>
+            <input id="phone" type="text" pattern="^0\d{10}$" title="Enter an 11-digit number starting with 0" required />
+          </div>
+        </div>
+      </section>
+
+      <section class="card card-centres">
+        <h2>Exam & Location</h2>
+        <div class="row">
+          <div>
+            <label for="license">License Number</label>
+            <input id="license" type="text" required />
+          </div>
+          <div>
+            <label for="theory">Theory Test Certificate Number (Not Reference Number)</label>
+            <input id="theory" type="text" required />
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="postcodes">Test Centre Postcodes (comma-separated)</label>
+            <textarea id="postcodes" placeholder="E4, BR4" required></textarea>
+          </div>
+          <div>
+            <label>Test Centres</label>
+            <div class="centre-select" id="centreSelect">
+              <div class="centre-control" id="centreControl" role="button" aria-haspopup="listbox" aria-expanded="false">
+                <div class="centre-tags" id="centreTags"></div>
+                <input id="centreFilter" type="text" placeholder="Choose test centres" aria-label="Choose test centres" />
+                <span class="centre-caret">▾</span>
+              </div>
+              <div class="centre-menu" id="centreMenu" role="listbox" aria-label="Test centres"></div>
+            </div>
+            <p class="note">Select multiple test centres. Type to filter; click a name to add it.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Submit</h2>
+        <div class="actions">
+          <button class="primary" type="submit">Finish Form</button>
+          <button class="secondary" type="button" id="resetBtn">Reset</button>
+        </div>
+        <p class="note">When finished, the output will be copied automatically for you to DM.</p>
+        <div class="banner" id="banner"></div>
+        <pre class="output" id="output"></pre>
+      </section>
+    </form>
+  </main>
+
+  <script>
+    const form = document.getElementById('infoForm');
+    const output = document.getElementById('output');
+    const banner = document.getElementById('banner');
+    const resetBtn = document.getElementById('resetBtn');
+    const minDate = document.getElementById('minDate');
+    const maxDate = document.getElementById('maxDate');
+    const changeBooking = document.getElementById('changeBooking');
+    const candidateSection = document.getElementById('candidateSection');
+    const rangeDisplay = document.getElementById('rangeDisplay');
+    const calendarTitle = document.getElementById('calendarTitle');
+    const calendarGrid = document.getElementById('calendarGrid');
+    const prevMonth = document.getElementById('prevMonth');
+    const nextMonth = document.getElementById('nextMonth');
+    const clearRange = document.getElementById('clearRange');
+    const centreSelect = document.getElementById('centreSelect');
+    const centreControl = document.getElementById('centreControl');
+    const centreTags = document.getElementById('centreTags');
+    const centreFilter = document.getElementById('centreFilter');
+    const centreMenu = document.getElementById('centreMenu');
+    const toggleWeekdays = document.getElementById('toggleWeekdays');
+    const weekdaySection = document.getElementById('weekdaySection');
+    const phoneInput = document.getElementById('phone');
+
+    let viewDate = new Date();
+    viewDate.setDate(1);
+    let selectedStart = null;
+    let selectedEnd = null;
+    let selectedCentres = [];
+    const allCentres = [
+      'Aberdeen North',
+      'Aberdeen South (Cove)',
+      'Aberfeldy',
+      'Abergavenny',
+      'Aberystwyth (Park Avenue)',
+      'Airdrie',
+      'Alness',
+      'Alnwick',
+      'Arbroath',
+      'Ashfield',
+      'Ashford (Kent)',
+      'Atherton (Manchester)',
+      'Aylesbury',
+      'Ayr',
+      'Bala',
+      'Ballater',
+      'Banbury',
+      'Banff',
+      'Bangor',
+      'Barking (Tanner Street)',
+      'Barnet (London)',
+      'Barnsley',
+      'Barnstaple',
+      'Barra',
+      'Barrow In Furness',
+      'Barry',
+      'Basildon',
+      'Basingstoke',
+      'Bedford',
+      'Belvedere (London)',
+      'Benbecula Island',
+      'Berwick-On-Tweed',
+      'Beverley LGV',
+      'Birmingham (Cocks Moors Woods)',
+      'Birmingham (Garretts Green)',
+      'Birmingham (Kings Heath)',
+      'Birmingham (Kingstanding)',
+      'Birmingham (Shirley)',
+      'Birmingham (South Yardley)',
+      'Birmingham (Sutton Coldfield)',
+      'Birmingham (Wyndley)',
+      'Bishopbriggs',
+      'Bishops Stortford',
+      'Blackburn with Darwen',
+      'Blackpool',
+      'Bletchley',
+      'Blyth',
+      'Bodmin',
+      'Bolton (Manchester)',
+      'Borehamwood (London)',
+      'Boston',
+      'Bradford (Heaton)',
+      'Bradford (Thornbury)',
+      'Brecon',
+      'Bredbury (Manchester)',
+      'Brentwood (London)',
+      'Bridgend',
+      'Bridlington',
+      'Bristol (Avonmouth)',
+      'Bristol (Kingswood)',
+      'Brodick (Isle of Arran)',
+      'Bromley (London)',
+      'Buckie',
+      'Burgess Hill',
+      'Burton on Trent',
+      'Bury (Manchester)',
+      'Bury St Edmunds',
+      'Buxton',
+      'Callander',
+      'Camborne',
+      'Cambridge (Brookmount Court)',
+      'Campbeltown',
+      'Canterbury',
+      'Cardiff (Llanishen)',
+      'Cardigan',
+      'Carlisle',
+      'Carlisle LGV (Cars)',
+      'Carmarthen',
+      'Castle Douglas',
+      'Chadderton',
+      'Cheetham Hill (Manchester)',
+      'Chelmsford',
+      'Chelmsford (Hanbury Road)',
+      'Cheltenham',
+      'Chertsey (London)',
+      'Chester',
+      'Chesterfield',
+      'Chichester',
+      'Chingford (London)',
+      'Chippenham',
+      'Chorley',
+      'Clacton-on-Sea',
+      'Colchester',
+      'Coventry',
+      'Crawley',
+      'Crewe',
+      'Crieff',
+      'Culham LGV',
+      'Cumnock',
+      'Darlington',
+      'Derby (Alvaston)',
+      'Doncaster',
+      'Doncaster (Legacy Centre)',
+      'Dorchester',
+      'Dudley',
+      'Dumbarton',
+      'Dumfries',
+      'Dumfries (Brasswell Office Park)',
+      'Dundee',
+      'Dunfermline (Vine)',
+      'Dunoon',
+      'Duns',
+      'Durham',
+      'East Kilbride',
+      'Eastbourne',
+      'Edinburgh (Currie)',
+      'Edinburgh (Musselburgh)',
+      'Elgin',
+      'Enfield (Brancroft Way)',
+      'Enfield (Innova Business Park)',
+      'Erith (London)',
+      'Exeter',
+      'Exeter LGV',
+      'Farnborough',
+      'Featherstone',
+      'Folkestone',
+      'Forfar',
+      'Fort William',
+      'Fraserburgh',
+      'Gairloch',
+      'Galashiels',
+      'Gateshead',
+      'Gillingham',
+      'Girvan',
+      'Glasgow (Anniesland)',
+      'Glasgow (Baillieston)',
+      'Glasgow (Shieldhall)',
+      'Gloucester',
+      'Golspie',
+      'Goodmayes (London)',
+      'Gosforth',
+      'Grangemouth',
+      'Grantham (Somerby)',
+      'Grantown-On-Spey',
+      'Greenford (Horsenden Lane)',
+      'Greenham',
+      'Greenock',
+      'Grimsby Coldwater',
+      'Guildford',
+      'Haddington',
+      'Halifax',
+      'Hamilton',
+      'Hartlepool',
+      'Hastings (Ore)',
+      'Hawick',
+      'Heckmondwike',
+      'Hendon (London)',
+      'Hereford',
+      'Herne Bay',
+      'Hexham',
+      'Heysham',
+      'High Wycombe',
+      'Hinckley',
+      'Hither Green (London)',
+      'Hornchurch (London)',
+      'Horsforth',
+      'Huddersfield',
+      'Hull',
+      'Huntly',
+      'Inveraray',
+      'Inverness (Longman Drive)',
+      'Inverness (Seafield Road)',
+      'Inverurie',
+      'Ipswich',
+      'Irvine',
+      'Islay Island',
+      'Isle of Mull',
+      'Isle of Skye (Portree)',
+      'Isle of Tiree',
+      'Isles of Scilly',
+      'Isleworth (Fleming Way)',
+      'Kelso',
+      'Kendal (Oxenholme Road)',
+      'Kettering',
+      'Kings Lynn',
+      'Kingussie',
+      'Kirkcaldy',
+      'Kirkham LGV',
+      'Knaresborough',
+      'Kyle of Lochalsh',
+      'Lanark',
+      'Lancing',
+      'Launceston',
+      'Lee On The Solent',
+      'Leeds (Colton Mill)',
+      'Leeds (Fearnville)',
+      'Leicester (Cannock Street)',
+      'Leicester (Wigston)',
+      'Leighton Buzzard (Stanbridge Road)',
+      'Lerwick',
+      'Letchworth',
+      'Lichfield',
+      'Lincoln',
+      'Livingston',
+      'Llanelli',
+      'Llantrisant',
+      'Lochgilphead',
+      'Loughborough',
+      'Loughton (London)',
+      'Louth',
+      'Lowestoft(Mobbs Way)',
+      'Ludlow',
+      'Luton',
+      'Macclesfield',
+      'Maidstone',
+      'Mallaig',
+      'Malton',
+      'Melton Mowbray',
+      'Merthyr Tydfil',
+      'Middlesbrough',
+      'Mill Hill (Churchill House, London)',
+      'Mill Hill (London)',
+      'Mitcham (London)',
+      'Monmouth',
+      'Montrose',
+      'Morden (London)',
+      'Nelson',
+      'Newbury (Hambridge Lane)',
+      'Newport (Gwent)',
+      'Newport (Isle of Wight)',
+      'Newton Abbot',
+      'Newton Stewart',
+      'Newtown',
+      'Norris Green (Liverpool)',
+      'Northallerton',
+      'Northampton',
+      'Northwich',
+      'Norwich (Jupiter Road)',
+      'Norwich (Peachman Way)',
+      'Nottingham (Chilwell)',
+      'Nottingham (Colwick)',
+      'Nuneaton',
+      'Oban',
+      'Orkney',
+      'Oswestry',
+      'Oxford (Cowley)',
+      'Oxford (Kassam Stadium)',
+      'Paisley',
+      'Peebles',
+      'Pembroke Dock',
+      'Penzance',
+      'Perth (Arran Road)',
+      'Peterborough',
+      'Peterhead',
+      'Pinner (London)',
+      'Pitlochry',
+      'Plymouth',
+      'Plymouth LGV',
+      'Pontefract',
+      'Poole',
+      'Portsmouth',
+      'Preston',
+      'Pwllheli',
+      'Reading',
+      'Redditch',
+      'Redhill Aerodrome',
+      'Rhyl',
+      'Rochdale (Manchester)',
+      'Rotherham',
+      'Rothesay',
+      'Rugby',
+      'Sale (Manchester)',
+      'Salisbury',
+      'Scarborough',
+      'Scunthorpe',
+      'Sevenoaks',
+      'Sheffield (Handsworth)',
+      'Sheffield (Middlewood Road)',
+      'Shrewsbury',
+      'Sidcup (London)',
+      'Skegness',
+      'Skipton',
+      'Slough (London)',
+      'Southall (London)',
+      'Southampton (Maybush)',
+      'Southend-on-Sea',
+      'Southport (Liverpool)',
+      'Speke (Liverpool)',
+      'St Albans',
+      'St Helens (Liverpool)',
+      'Stafford',
+      'Steeton',
+      'Stevenage',
+      'Stirling',
+      'Stoke-On-Trent (Cobridge)',
+      'Stoke-on-Trent (Newcastle-Under-Lyme)',
+      'Stornoway',
+      'Stranraer',
+      'Sunderland',
+      'Swansea',
+      'Swindon',
+      'Swindon LGV',
+      'Taunton',
+      'Telford',
+      'Thurso',
+      'Tilbury',
+      'Tolworth (London)',
+      'Tottenham',
+      'Trowbridge',
+      'Tunbridge Wells',
+      'Ullapool',
+      'Upton',
+      'Uxbridge (London)',
+      'Wakefield',
+      'Wallasey',
+      'Walton LGV',
+      'Wanstead (London)',
+      'Warrington',
+      'Warwick (Wedgenock House)',
+      'Watford',
+      'Wednesbury',
+      'Wellingborough',
+      'West Didsbury (Manchester)',
+      'West Wickham (London)',
+      'Weston-super-Mare',
+      'Whitby',
+      'Wick',
+      'Widnes',
+      'Winchester',
+      'Wolverhampton',
+      'Wood Green (London)',
+      'Worcester',
+      'Workington',
+      'Worksop',
+      'Worthing',
+      'Wrexham',
+      'Wrexham LGV',
+      'Yeading (London)',
+      'Yeovil',
+      'York',
+    ];
+
+    function getWeekdays() {
+      if (!toggleWeekdays.checked) {
+        return [];
+      }
+      const selected = [];
+      document.querySelectorAll('#weekdayGroup input:checked').forEach((el) => {
+        selected.push(Number(el.value));
+      });
+      return selected;
+    }
+
+    function parseList(value) {
+      return value
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+
+    function buildPayload() {
+      const isChangeBooking = changeBooking.checked;
+      return {
+        WechatID: document.getElementById('wechatName').value.trim(),
+        XIAOHONGSHU_NAME: document.getElementById('xiaohongshuName').value.trim(),
+        PROXIES_FILE: '',
+        NUMBER_OF_WORKERS: 13,
+        HARD_MODE: false,
+        TIMER: false,
+        AUTO_CONFIRM: true,
+        HEADLESS: true,
+        CHANG_MODE: isChangeBooking,
+        MIN_DATE: document.getElementById('minDate').value,
+        MAX_DATE: document.getElementById('maxDate').value,
+        MIN_TIME: document.getElementById('minTime').value,
+        MAX_TIME: document.getElementById('maxTime').value,
+        WEEKDAYS: getWeekdays(),
+        LICENSE_NUMBER: document.getElementById('license').value.trim(),
+        THEORY_TEST_NUMBER: document.getElementById('theory').value.trim(),
+        POSTCODES: parseList(document.getElementById('postcodes').value),
+        TEST_CENTRE_LIST: selectedCentres.slice(),
+        CANDIDATE_TITLE: isChangeBooking ? '' : document.getElementById('title').value,
+        CANDIDATE_FIRST_NAME: isChangeBooking ? '' : document.getElementById('firstName').value.trim(),
+        CANDIDATE_SURNAME: isChangeBooking ? '' : document.getElementById('surname').value.trim(),
+        CANDIDATE_ADDRESS_LINE1: isChangeBooking ? '' : document.getElementById('address1').value.trim(),
+        CANDIDATE_ADDRESS_LINE2: isChangeBooking ? '' : document.getElementById('address2').value.trim(),
+        CANDIDATE_TOWN: isChangeBooking ? '' : document.getElementById('town').value.trim(),
+        CANDIDATE_POSTCODE: isChangeBooking ? '' : document.getElementById('postcode').value.trim(),
+        CANDIDATE_EMAIL: isChangeBooking ? '' : document.getElementById('email').value.trim(),
+        CANDIDATE_CONTACT_NUMBER: isChangeBooking ? '' : document.getElementById('phone').value.trim()
+      };
+    }
+
+    function validateRanges(payload) {
+      if (!payload.WechatID && !payload.XIAOHONGSHU_NAME) {
+        return 'Please enter your WeChat name or Xiaohongshu name.';
+      }
+      if (!payload.MIN_DATE || !payload.MAX_DATE) {
+        rangeDisplay.classList.add('error');
+        return 'Please select a date range.';
+      }
+      if (!selectedStart || !selectedEnd) {
+        rangeDisplay.classList.add('error');
+        return 'Please select a date range.';
+      }
+      if (!payload.LICENSE_NUMBER || !payload.THEORY_TEST_NUMBER) {
+        return 'Please enter your license number and theory test certificate number.';
+      }
+      if (!payload.POSTCODES.length) {
+        return 'Please enter at least one test centre postcode.';
+      }
+      if (!payload.TEST_CENTRE_LIST.length) {
+        return 'Please select at least one test centre.';
+      }
+      if (payload.MIN_DATE && payload.MAX_DATE && payload.MIN_DATE > payload.MAX_DATE) {
+        return 'Min date must be before max date.';
+      }
+      if (payload.MIN_TIME && payload.MAX_TIME && payload.MIN_TIME > payload.MAX_TIME) {
+        return 'Min time must be before max time.';
+      }
+      if (payload.CANDIDATE_CONTACT_NUMBER && !/^0\d{10}$/.test(payload.CANDIDATE_CONTACT_NUMBER)) {
+        return 'Contact number must be 11 digits and start with 0.';
+      }
+      return '';
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const payload = buildPayload();
+      const error = validateRanges(payload);
+      if (error) {
+        banner.style.display = 'block';
+        banner.textContent = error;
+        return;
+      }
+      try {
+        output.textContent = JSON.stringify(payload, null, 2);
+        await navigator.clipboard.writeText(output.textContent.trim());
+        banner.style.display = 'block';
+        banner.textContent = 'Pre-Written Msg Generated and Copied to Clipboard. Please DM me on WeChat/Xiaohongshu.';
+        alert('Pre-Written Msg Generated and Copied to Clipboard. Please DM me on WeChat/Xiaohongshu.');
+      } catch (err) {
+        output.textContent = JSON.stringify(payload, null, 2);
+        banner.style.display = 'block';
+        banner.textContent = 'Form filled, but clipboard access failed. Please copy below the pre-written msg manually.';
+        alert('Pre-Written Msg Generated! Clipboard access failed; please copy the pre-written msg below manually.');
+      }
+    });
+
+    resetBtn.addEventListener('click', () => {
+      form.reset();
+      output.textContent = '';
+      banner.style.display = 'none';
+      selectedStart = null;
+      selectedEnd = null;
+      updateRangeInputs();
+      renderCalendar();
+      selectedCentres = [];
+      renderCentreTags();
+      renderCentreMenu();
+      updateCandidateVisibility();
+      updateWeekdayVisibility();
+    });
+
+    function formatDate(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function stripTime(date) {
+      const clean = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      clean.setHours(0, 0, 0, 0);
+      return clean;
+    }
+
+    function isSameDay(a, b) {
+      return a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+    }
+
+    function updateRangeInputs() {
+      if (selectedStart) {
+        minDate.value = formatDate(selectedStart);
+      } else {
+        minDate.value = '';
+      }
+
+      if (selectedEnd) {
+        maxDate.value = formatDate(selectedEnd);
+      } else {
+        maxDate.value = '';
+      }
+
+      if (selectedStart && selectedEnd) {
+        rangeDisplay.textContent = `Start: ${formatDate(selectedStart)} | End: ${formatDate(selectedEnd)}`;
+        rangeDisplay.classList.remove('error');
+      } else if (selectedStart) {
+        rangeDisplay.textContent = `Start: ${formatDate(selectedStart)} (select an end date)`;
+        rangeDisplay.classList.remove('error');
+      } else {
+        rangeDisplay.textContent = 'Select a start and end date';
+        rangeDisplay.classList.remove('error');
+      }
+    }
+
+    function handleDateClick(date) {
+      const picked = stripTime(date);
+      if (!selectedStart || (selectedStart && selectedEnd)) {
+        selectedStart = picked;
+        selectedEnd = null;
+      } else if (picked < selectedStart) {
+        selectedEnd = selectedStart;
+        selectedStart = picked;
+      } else {
+        selectedEnd = picked;
+      }
+      updateRangeInputs();
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      const year = viewDate.getFullYear();
+      const month = viewDate.getMonth();
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const daysInPrev = new Date(year, month, 0).getDate();
+
+      calendarTitle.textContent = `${viewDate.toLocaleString('en-US', { month: 'long' })} ${year}`;
+      calendarGrid.innerHTML = '';
+
+      for (let i = 0; i < 42; i += 1) {
+        const dayNumber = i - firstDay + 1;
+        let cellDate;
+        let outside = false;
+
+        if (dayNumber < 1) {
+          cellDate = new Date(year, month - 1, daysInPrev + dayNumber);
+          outside = true;
+        } else if (dayNumber > daysInMonth) {
+          cellDate = new Date(year, month + 1, dayNumber - daysInMonth);
+          outside = true;
+        } else {
+          cellDate = new Date(year, month, dayNumber);
+        }
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = `calendar-day${outside ? ' outside' : ''}`;
+        button.textContent = cellDate.getDate();
+        button.addEventListener('click', () => handleDateClick(cellDate));
+
+        if (selectedStart && selectedEnd) {
+          const inRange = stripTime(cellDate) >= selectedStart && stripTime(cellDate) <= selectedEnd;
+          if (inRange) {
+            button.classList.add('in-range');
+          }
+        }
+
+        if (isSameDay(cellDate, selectedStart) || isSameDay(cellDate, selectedEnd)) {
+          button.classList.add('selected');
+        }
+
+        calendarGrid.appendChild(button);
+      }
+    }
+
+    prevMonth.addEventListener('click', () => {
+      viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1);
+      renderCalendar();
+    });
+
+    nextMonth.addEventListener('click', () => {
+      viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1);
+      renderCalendar();
+    });
+
+    clearRange.addEventListener('click', () => {
+      selectedStart = null;
+      selectedEnd = null;
+      updateRangeInputs();
+      renderCalendar();
+    });
+
+    updateRangeInputs();
+    renderCalendar();
+
+    function renderCentreTags() {
+      centreTags.innerHTML = '';
+      selectedCentres.forEach((name) => {
+        const tag = document.createElement('span');
+        tag.className = 'centre-tag';
+        tag.textContent = name;
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.textContent = '×';
+        remove.addEventListener('click', (event) => {
+          event.stopPropagation();
+          selectedCentres = selectedCentres.filter((item) => item !== name);
+          renderCentreTags();
+          renderCentreMenu();
+        });
+        tag.appendChild(remove);
+        centreTags.appendChild(tag);
+      });
+    }
+
+    function renderCentreMenu() {
+      const query = centreFilter.value.trim().toLowerCase();
+      const results = allCentres.filter((name) => name.toLowerCase().includes(query));
+      centreMenu.innerHTML = '';
+
+      if (results.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'centre-option selected';
+        empty.textContent = 'No results';
+        centreMenu.appendChild(empty);
+        return;
+      }
+
+      results.forEach((name) => {
+        const option = document.createElement('div');
+        option.className = 'centre-option';
+        option.textContent = name;
+        if (selectedCentres.includes(name)) {
+          option.classList.add('selected');
+          return centreMenu.appendChild(option);
+        }
+        option.addEventListener('click', () => {
+          selectedCentres.push(name);
+          centreFilter.value = '';
+          renderCentreTags();
+          renderCentreMenu();
+        });
+        centreMenu.appendChild(option);
+      });
+    }
+
+    function toggleCentreMenu(forceOpen) {
+      const isOpen = centreMenu.classList.contains('open');
+      const nextOpen = typeof forceOpen === 'boolean' ? forceOpen : !isOpen;
+      centreMenu.classList.toggle('open', nextOpen);
+      centreControl.setAttribute('aria-expanded', String(nextOpen));
+      if (nextOpen) {
+        renderCentreMenu();
+      }
+    }
+
+    centreControl.addEventListener('click', () => {
+      centreFilter.focus();
+      toggleCentreMenu(true);
+    });
+
+    centreFilter.addEventListener('input', () => {
+      renderCentreMenu();
+      toggleCentreMenu(true);
+    });
+
+    centreFilter.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        toggleCentreMenu(false);
+      }
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!centreSelect.contains(event.target)) {
+        toggleCentreMenu(false);
+      }
+    });
+
+    renderCentreTags();
+    renderCentreMenu();
+
+    function updateCandidateVisibility() {
+      const isHidden = changeBooking.checked;
+      candidateSection.style.display = isHidden ? 'none' : '';
+      candidateSection.querySelectorAll('input, select, textarea').forEach((field) => {
+        if (isHidden) {
+          field.removeAttribute('required');
+        } else {
+          if (field.id !== 'address2') {
+            field.setAttribute('required', 'required');
+          }
+        }
+      });
+    }
+
+    changeBooking.addEventListener('change', updateCandidateVisibility);
+    updateCandidateVisibility();
+
+    function updateWeekdayVisibility() {
+      weekdaySection.style.display = toggleWeekdays.checked ? 'block' : 'none';
+      if (toggleWeekdays.checked) {
+        document.querySelectorAll('#weekdayGroup input').forEach((el) => {
+          el.checked = !['0', '6'].includes(el.value);
+        });
+      }
+    }
+
+    toggleWeekdays.addEventListener('change', updateWeekdayVisibility);
+    updateWeekdayVisibility();
+
+    function normalizePhone() {
+      const digits = phoneInput.value.replace(/\D/g, '').slice(0, 11);
+      phoneInput.value = digits;
+      if (!digits) {
+        phoneInput.setCustomValidity('');
+        return;
+      }
+      phoneInput.setCustomValidity(/^0\d{10}$/.test(digits) ? '' : 'Contact number must be 11 digits and start with 0.');
+    }
+
+    phoneInput.setAttribute('maxlength', '11');
+    phoneInput.setAttribute('inputmode', 'numeric');
+    phoneInput.addEventListener('input', normalizePhone);
+    normalizePhone();
+  </script>
+</body>
+</html>
