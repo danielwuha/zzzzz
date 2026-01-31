@@ -46,23 +46,36 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 12px;
+      padding: 10px 14px;
       border-radius: 999px;
-      border: 1px solid var(--border);
-      background: #fffdf9;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      border: 2px solid #1f66ff;
+      background: linear-gradient(135deg, #ffffff, #eaf1ff);
+      box-shadow: 0 10px 24px rgba(31,102,255,0.18);
     }
 
     .lang-label {
-      font-size: 0.8rem;
-      color: var(--muted);
+      font-size: 0.85rem;
+      color: #1f66ff;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
     }
 
-    .lang-toggle select {
+    .lang-switch {
       border: none;
-      background: transparent;
-      font-size: 0.9rem;
-      outline: none;
+      background: #1f66ff;
+      color: #ffffff;
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 8px 16px rgba(31,102,255,0.25);
+    }
+
+    .lang-switch:hover {
+      transform: translateY(-1px);
     }
 
     @media (max-width: 720px) {
@@ -508,10 +521,7 @@
   <header>
     <div class="lang-toggle" aria-label="Language toggle">
       <label for="langSelect" class="lang-label">Language</label>
-      <select id="langSelect" aria-label="Select language">
-        <option value="en">English</option>
-        <option value="zh">中文</option>
-      </select>
+      <button type="button" class="lang-switch" id="langSelect" aria-label="Toggle language" aria-pressed="false">中文</button>
     </div>
     <h1 data-i18n="title">Booking Preferences</h1>
     <p data-i18n="subtitle">Fill out the details below. At the end, you will see a confirmation and a ready-to-send message for WeChat.</p>
@@ -529,6 +539,16 @@
       </div>
     </div>
     <form id="infoForm" class="grid">
+      <section class="card" id="bookingSection">
+        <h2 data-i18n="booking_heading">Booking Type</h2>
+        <div class="row">
+          <div class="toggle">
+            <input id="changeBooking" type="checkbox" />
+            <label for="changeBooking" data-i18n="change_booking">Change Booking</label>
+          </div>
+        </div>
+        <p class="note" data-i18n="change_booking_note">Enable this if you already have a booking and want to update it.</p>
+      </section>
       <section class="card">
         <h2 data-i18n="contact_heading">Contact & Account</h2>
         <div class="row">
@@ -539,12 +559,6 @@
           <div>
             <label for="xiaohongshuName" data-i18n="xiaohongshu_label">Xiaohongshu Name</label>
             <input id="xiaohongshuName" name="xiaohongshuName" type="text" placeholder="Xiaohongshu name" data-i18n-placeholder="xiaohongshu_placeholder" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="toggle">
-            <input id="changeBooking" type="checkbox" />
-            <label for="changeBooking" data-i18n="change_booking">Change Booking</label>
           </div>
         </div>
       </section>
@@ -737,12 +751,14 @@
       en: {
         title: 'Booking Preferences',
         subtitle: 'Fill out the details below. At the end, you will see a confirmation and a ready-to-send message for WeChat.',
+        booking_heading: 'Booking Type',
         contact_heading: 'Contact & Account',
         wechat_label: 'WeChat Name',
         wechat_placeholder: 'WeChat name',
         xiaohongshu_label: 'Xiaohongshu Name',
         xiaohongshu_placeholder: 'Xiaohongshu name',
         change_booking: 'Change Booking',
+        change_booking_note: 'Enable this if you already have a booking and want to update it.',
         datetime_heading: 'Date & Time Preferences',
         date_range_label: 'Date Range',
         range_default: 'Select a start and end date',
@@ -812,12 +828,14 @@
       zh: {
         title: '预约偏好',
         subtitle: '请填写以下信息。完成后会生成确认信息，并提供可直接发送到微信的预写消息。',
+        booking_heading: '预约类型',
         contact_heading: '联系 (只填写一个即可)',
         wechat_label: '微信昵称',
         wechat_placeholder: '微信昵称',
         xiaohongshu_label: '小红书昵称',
         xiaohongshu_placeholder: '小红书昵称',
         change_booking: '换考位',
+        change_booking_note: '如果你已有预约并需要修改，请启用此项。',
         datetime_heading: '日期与时间偏好',
         date_range_label: '日期范围',
         range_default: '请选择开始与结束日期',
@@ -854,7 +872,7 @@
         phone: '联系电话',
         exam_heading: '考试与地点',
         license: '驾照号码',
-        theory: '理论考试证书号（非参考编号）',
+        theory: '理论考试通过证书号（非参考编号）',
         postcodes: '考场邮编（用逗号分隔）',
         centres_label: '考场列表',
         centre_placeholder: '选择考场',
@@ -886,8 +904,11 @@
       }
     };
 
+    let currentLang = 'zh';
+
     function applyTranslations(locale) {
       const strings = translations[locale] || translations.en;
+      currentLang = locale;
       document.documentElement.lang = locale === 'zh' ? 'zh' : 'en';
       copyStatus.textContent = '';
       document.querySelectorAll('[data-i18n]').forEach((el) => {
@@ -904,6 +925,8 @@
       });
       renderCentreMenu();
       updateRangeInputs();
+      langSelect.textContent = locale === 'en' ? '中文' : 'English';
+      langSelect.setAttribute('aria-pressed', String(locale === 'zh'));
     }
 
     let viewDate = new Date();
@@ -1307,33 +1330,33 @@
 
     function validateRanges(payload) {
       if (!payload.WechatID && !payload.XIAOHONGSHU_NAME) {
-        return translations[langSelect.value].error_name;
+        return translations[currentLang].error_name;
       }
       if (!payload.MIN_DATE || !payload.MAX_DATE) {
         rangeDisplay.classList.add('error');
-        return translations[langSelect.value].error_range;
+        return translations[currentLang].error_range;
       }
       if (!selectedStart || !selectedEnd) {
         rangeDisplay.classList.add('error');
-        return translations[langSelect.value].error_range;
+        return translations[currentLang].error_range;
       }
       if (!payload.LICENSE_NUMBER || !payload.THEORY_TEST_NUMBER) {
-        return translations[langSelect.value].error_license;
+        return translations[currentLang].error_license;
       }
       if (!payload.POSTCODES.length) {
-        return translations[langSelect.value].error_postcode;
+        return translations[currentLang].error_postcode;
       }
       if (!payload.TEST_CENTRE_LIST.length) {
-        return translations[langSelect.value].error_centres;
+        return translations[currentLang].error_centres;
       }
       if (payload.MIN_DATE && payload.MAX_DATE && payload.MIN_DATE > payload.MAX_DATE) {
-        return translations[langSelect.value].error_min_date;
+        return translations[currentLang].error_min_date;
       }
       if (payload.MIN_TIME && payload.MAX_TIME && payload.MIN_TIME > payload.MAX_TIME) {
-        return translations[langSelect.value].error_min_time;
+        return translations[currentLang].error_min_time;
       }
       if (payload.CANDIDATE_CONTACT_NUMBER && !/^0\d{10}$/.test(payload.CANDIDATE_CONTACT_NUMBER)) {
-        return translations[langSelect.value].error_phone;
+        return translations[currentLang].error_phone;
       }
       return '';
     }
@@ -1351,13 +1374,13 @@
         output.textContent = JSON.stringify(payload, null, 2);
         await navigator.clipboard.writeText(output.textContent.trim());
         banner.style.display = 'block';
-        banner.textContent = translations[langSelect.value].success_clipboard;
-        alert(translations[langSelect.value].alert_success);
+        banner.textContent = translations[currentLang].success_clipboard;
+        alert(translations[currentLang].alert_success);
       } catch (err) {
         output.textContent = JSON.stringify(payload, null, 2);
         banner.style.display = 'block';
-        banner.textContent = translations[langSelect.value].fail_clipboard;
-        alert(translations[langSelect.value].alert_fail);
+        banner.textContent = translations[currentLang].fail_clipboard;
+        alert(translations[currentLang].alert_fail);
       }
     });
 
@@ -1407,17 +1430,17 @@
       }
 
       if (selectedStart && selectedEnd) {
-        const template = translations[langSelect.value].range_start_end;
+        const template = translations[currentLang].range_start_end;
         rangeDisplay.textContent = template
           .replace('{start}', formatDate(selectedStart))
           .replace('{end}', formatDate(selectedEnd));
         rangeDisplay.classList.remove('error');
       } else if (selectedStart) {
-        const template = translations[langSelect.value].range_start;
+        const template = translations[currentLang].range_start;
         rangeDisplay.textContent = template.replace('{start}', formatDate(selectedStart));
         rangeDisplay.classList.remove('error');
       } else {
-        rangeDisplay.textContent = translations[langSelect.value].range_default;
+        rangeDisplay.textContent = translations[currentLang].range_default;
         rangeDisplay.classList.remove('error');
       }
     }
@@ -1531,7 +1554,7 @@
       if (results.length === 0) {
         const empty = document.createElement('div');
         empty.className = 'centre-option selected';
-        empty.textContent = translations[langSelect.value].no_results;
+        empty.textContent = translations[currentLang].no_results;
         centreMenu.appendChild(empty);
         return;
       }
@@ -1633,11 +1656,12 @@
     phoneInput.addEventListener('input', normalizePhone);
     normalizePhone();
 
-    langSelect.addEventListener('change', (event) => {
-      applyTranslations(event.target.value);
+    langSelect.addEventListener('click', () => {
+      const next = currentLang === 'en' ? 'zh' : 'en';
+      applyTranslations(next);
     });
 
-    applyTranslations(langSelect.value);
+    applyTranslations('zh');
 
     function isWeChatBrowser() {
       return /micromessenger/i.test(navigator.userAgent);
@@ -1651,9 +1675,9 @@
       const link = window.location.href;
       try {
         await navigator.clipboard.writeText(link);
-        copyStatus.textContent = translations[langSelect.value].wechat_copy_success;
+        copyStatus.textContent = translations[currentLang].wechat_copy_success;
       } catch (err) {
-        copyStatus.textContent = translations[langSelect.value].wechat_copy_fail;
+        copyStatus.textContent = translations[currentLang].wechat_copy_fail;
       }
     });
   </script>
