@@ -688,10 +688,6 @@
         </div>
         <div class="row">
           <div>
-            <label for="postcodes" data-i18n="postcodes">Test Centre Postcodes (comma-separated)</label>
-            <textarea id="postcodes" placeholder="E4, BR4" required></textarea>
-          </div>
-          <div>
             <label data-i18n="centres_label">Test Centres</label>
             <div class="centre-select" id="centreSelect">
               <div class="centre-control" id="centreControl" role="button" aria-haspopup="listbox" aria-expanded="false">
@@ -758,7 +754,7 @@
         xiaohongshu_label: 'Xiaohongshu Name',
         xiaohongshu_placeholder: 'Xiaohongshu name',
         change_booking: 'Change Booking',
-        change_booking_note: 'Enable this if you already have a booking and want to update it.',
+        change_booking_note: 'Enable this if you already have a booking and want to change it.',
         datetime_heading: 'Date & Time Preferences',
         date_range_label: 'Date Range',
         range_default: 'Select a start and end date',
@@ -774,7 +770,7 @@
         weekday_fri: 'Fri',
         weekday_sat: 'Sat',
         clear_range: 'Clear range',
-        toggle_weekdays: 'To specify the day of week?',
+        toggle_weekdays: 'Enable this if you would like to specify the day of week?',
         weekday_label: 'Select the day you need',
         day_sun: 'Sunday',
         day_mon: 'Monday',
@@ -827,7 +823,7 @@
       },
       zh: {
         title: '预约偏好',
-        subtitle: '请填写以下信息。完成后会生成确认信息，并提供可直接发送到微信的预写消息。',
+        subtitle: '请填写以下信息。完成后会生成预写信息，请将生成的信息粘贴私信给我。',
         booking_heading: '预约类型',
         contact_heading: '联系 (只填写一个即可)',
         wechat_label: '微信昵称',
@@ -838,7 +834,7 @@
         change_booking_note: '如果你已有预约并需要修改，请启用此项。',
         datetime_heading: '日期与时间偏好',
         date_range_label: '日期范围',
-        range_default: '请选择开始与结束日期',
+        range_default: '请在日历里选择开始与结束日期',
         min_time: '最早时间',
         max_time: '最晚时间',
         prev: '上月',
@@ -851,7 +847,7 @@
         weekday_fri: '五',
         weekday_sat: '六',
         clear_range: '清除范围',
-        toggle_weekdays: '是否指定周几？',
+        toggle_weekdays: '如果需要指定周几, 请启用此项',
         weekday_label: '请选择需要的星期几',
         day_sun: '星期日',
         day_mon: '星期一',
@@ -894,9 +890,9 @@
         error_min_date: '最小日期必须早于最大日期。',
         error_min_time: '最早时间必须早于最晚时间。',
         error_phone: '联系电话需为11位且以0开头。',
-        success_clipboard: '已生成并复制预写消息。请在微信/小红书私信我。',
+        success_clipboard: '已生成并复制预写消息。请在微信/小红书私信我, 并将预写信息粘贴给我。',
         fail_clipboard: '表单已生成，但剪贴板复制失败。请手动复制下方预写消息。',
-        alert_success: '已生成并复制预写消息。请在微信/小红书私信我。',
+        alert_success: '已生成并复制预写消息。请在微信/小红书私信我, 并将预写信息粘贴给我。。',
         alert_fail: '已生成预写消息，但剪贴板复制失败；请手动复制下方内容。',
         no_results: '无结果',
         range_start_end: '开始：{start} | 结束：{end}',
@@ -1288,13 +1284,6 @@
       return selected;
     }
 
-    function parseList(value) {
-      return value
-        .split(',')
-        .map((item) => item.trim())
-        .filter(Boolean);
-    }
-
     function buildPayload() {
       const isChangeBooking = changeBooking.checked;
       return {
@@ -1314,7 +1303,7 @@
         WEEKDAYS: getWeekdays(),
         LICENSE_NUMBER: document.getElementById('license').value.trim(),
         THEORY_TEST_NUMBER: document.getElementById('theory').value.trim(),
-        POSTCODES: parseList(document.getElementById('postcodes').value),
+        POSTCODES: [],
         TEST_CENTRE_LIST: selectedCentres.slice(),
         CANDIDATE_TITLE: isChangeBooking ? '' : document.getElementById('title').value,
         CANDIDATE_FIRST_NAME: isChangeBooking ? '' : document.getElementById('firstName').value.trim(),
@@ -1342,9 +1331,6 @@
       }
       if (!payload.LICENSE_NUMBER || !payload.THEORY_TEST_NUMBER) {
         return translations[currentLang].error_license;
-      }
-      if (!payload.POSTCODES.length) {
-        return translations[currentLang].error_postcode;
       }
       if (!payload.TEST_CENTRE_LIST.length) {
         return translations[currentLang].error_centres;
