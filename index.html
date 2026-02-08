@@ -135,10 +135,6 @@
         min-width: 120px;
       }
 
-      .wechat-tip {
-        padding: 14px;
-      }
-
       .output {
         font-size: 0.8rem;
       }
@@ -374,28 +370,6 @@
       margin-top: 12px;
     }
 
-    .wechat-tip {
-      display: none;
-      margin: 0 0 20px;
-      padding: 16px;
-      border-radius: 16px;
-      border: 1px solid #cfe3ff;
-      background: linear-gradient(135deg, #f2f7ff, #ffffff);
-      box-shadow: 0 10px 24px rgba(0,0,0,0.08);
-    }
-
-    .wechat-tip__content {
-      display: grid;
-      gap: 10px;
-    }
-
-    .wechat-tip__actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-    }
-
     .centre-select {
       position: relative;
       z-index: 5;
@@ -501,6 +475,7 @@
       cursor: not-allowed;
     }
 
+    #timeSection,
     #weekdaySection {
       display: none;
     }
@@ -528,16 +503,6 @@
   </header>
 
   <main>
-    <div class="wechat-tip" id="wechatTip" role="note" aria-live="polite">
-      <div class="wechat-tip__content">
-        <strong data-i18n="wechat_tip_title">WeChat browser tip</strong>
-        <p data-i18n="wechat_tip_body">We detected you are opening this in WeChat. Tap “…” in the top-right and choose “Open in Browser”, or copy the link below and open it in your browser.</p>
-        <div class="wechat-tip__actions">
-          <button type="button" class="secondary" id="copyLinkBtn" data-i18n="wechat_copy_link">Copy current link</button>
-          <span class="note" id="copyStatus" aria-live="polite"></span>
-        </div>
-      </div>
-    </div>
     <form id="infoForm" class="grid">
       <section class="card" id="bookingSection">
         <h2 data-i18n="booking_heading">Booking Type</h2>
@@ -572,14 +537,6 @@
             <input id="minDate" type="date" required hidden />
             <input id="maxDate" type="date" required hidden />
           </div>
-          <div>
-            <label for="minTime" data-i18n="min_time">Min Time</label>
-            <input id="minTime" type="time" value="00:00" required />
-          </div>
-          <div>
-            <label for="maxTime" data-i18n="max_time">Max Time</label>
-            <input id="maxTime" type="time" value="23:59" required />
-          </div>
         </div>
         <div class="calendar-wrap" aria-label="Date range picker">
           <div class="calendar-header">
@@ -611,6 +568,24 @@
             <label class="weekday"><input type="checkbox" value="4" /><span data-i18n="day_thu">Thursday</span></label>
             <label class="weekday"><input type="checkbox" value="5" /><span data-i18n="day_fri">Friday</span></label>
             <label class="weekday"><input type="checkbox" value="6" /><span data-i18n="day_sat">Saturday</span></label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="toggle">
+            <input id="toggleTime" type="checkbox" />
+            <label for="toggleTime" data-i18n="toggle_time">Enable this if you would like to specify time?</label>
+          </div>
+        </div>
+        <div id="timeSection">
+          <div class="row">
+            <div>
+              <label for="minTime" data-i18n="min_time">Min Time</label>
+              <input id="minTime" type="time" />
+            </div>
+            <div>
+              <label for="maxTime" data-i18n="max_time">Max Time</label>
+              <input id="maxTime" type="time" />
+            </div>
           </div>
         </div>
       </section>
@@ -735,13 +710,14 @@
     const centreTags = document.getElementById('centreTags');
     const centreFilter = document.getElementById('centreFilter');
     const centreMenu = document.getElementById('centreMenu');
+    const toggleTime = document.getElementById('toggleTime');
+    const timeSection = document.getElementById('timeSection');
+    const minTimeInput = document.getElementById('minTime');
+    const maxTimeInput = document.getElementById('maxTime');
     const toggleWeekdays = document.getElementById('toggleWeekdays');
     const weekdaySection = document.getElementById('weekdaySection');
     const phoneInput = document.getElementById('phone');
     const langSelect = document.getElementById('langSelect');
-    const wechatTip = document.getElementById('wechatTip');
-    const copyLinkBtn = document.getElementById('copyLinkBtn');
-    const copyStatus = document.getElementById('copyStatus');
 
     const translations = {
       en: {
@@ -758,6 +734,7 @@
         datetime_heading: 'Date & Time Preferences',
         date_range_label: 'Date Range',
         range_default: 'Select a start and end date',
+        toggle_time: 'Enable this if you would like to specify time?',
         min_time: 'Min Time',
         max_time: 'Max Time',
         prev: 'Prev',
@@ -800,11 +777,6 @@
         finish: 'Finish Form',
         reset: 'Reset',
         submit_note: 'When finished, the output will be copied automatically for you to DM.',
-        wechat_tip_title: 'WeChat browser tip / 微信浏览提示',
-        wechat_tip_body: 'We detected you are opening this in WeChat. Tap “…” in the top-right and choose “Open in Browser”, or copy the link below and open it in your browser. / 检测到你在微信内打开。建议点击右上角“…”选择“在浏览器打开”，或点击下方按钮复制链接后在浏览器中打开。',
-        wechat_copy_link: 'Copy current link / 复制当前链接',
-        wechat_copy_success: 'Link copied. Please open it in your browser.',
-        wechat_copy_fail: 'Copy failed. Please long-press the URL and copy it.',
         error_name: 'Please enter your WeChat name or Xiaohongshu name.',
         error_range: 'Please select a date range.',
         error_license: 'Please enter your license number and theory test certificate number.',
@@ -835,6 +807,7 @@
         datetime_heading: '日期与时间偏好',
         date_range_label: '日期范围',
         range_default: '请在日历里选择开始与结束日期',
+        toggle_time: '如果需要指定时间, 请启用此项',
         min_time: '最早时间',
         max_time: '最晚时间',
         prev: '上月',
@@ -877,11 +850,6 @@
         finish: '完成表单',
         reset: '重置',
         submit_note: '完成后会自动复制结果，便于私信发送。',
-        wechat_tip_title: 'WeChat browser tip / 微信浏览提示',
-        wechat_tip_body: 'We detected you are opening this in WeChat. Tap “…” in the top-right and choose “Open in Browser”, or copy the link below and open it in your browser. / 检测到你在微信内打开。建议点击右上角“…”选择“在浏览器打开”，或点击下方按钮复制链接后在浏览器中打开。',
-        wechat_copy_link: 'Copy current link / 复制当前链接',
-        wechat_copy_success: '链接已复制，请在浏览器打开。',
-        wechat_copy_fail: '复制失败，请长按链接手动复制。',
         error_name: '请填写微信昵称或小红书昵称。',
         error_range: '请选择日期范围。',
         error_license: '请填写驾照号码和理论考试证书号。',
@@ -906,7 +874,6 @@
       const strings = translations[locale] || translations.en;
       currentLang = locale;
       document.documentElement.lang = locale === 'zh' ? 'zh' : 'en';
-      copyStatus.textContent = '';
       document.querySelectorAll('[data-i18n]').forEach((el) => {
         const key = el.getAttribute('data-i18n');
         if (strings[key]) {
@@ -1286,6 +1253,8 @@
 
     function buildPayload() {
       const isChangeBooking = changeBooking.checked;
+      const minTimeValue = document.getElementById('minTime').value;
+      const maxTimeValue = document.getElementById('maxTime').value;
       return {
         WechatID: document.getElementById('wechatName').value.trim(),
         XIAOHONGSHU_NAME: document.getElementById('xiaohongshuName').value.trim(),
@@ -1298,8 +1267,8 @@
         CHANG_MODE: isChangeBooking,
         MIN_DATE: document.getElementById('minDate').value,
         MAX_DATE: document.getElementById('maxDate').value,
-        MIN_TIME: document.getElementById('minTime').value,
-        MAX_TIME: document.getElementById('maxTime').value,
+        MIN_TIME: minTimeValue || null,
+        MAX_TIME: maxTimeValue || null,
         WEEKDAYS: getWeekdays(),
         LICENSE_NUMBER: document.getElementById('license').value.trim(),
         THEORY_TEST_NUMBER: document.getElementById('theory').value.trim(),
@@ -1383,6 +1352,7 @@
       renderCentreMenu();
       updateCandidateVisibility();
       updateWeekdayVisibility();
+      updateTimeVisibility();
     });
 
     function formatDate(date) {
@@ -1627,6 +1597,18 @@
     toggleWeekdays.addEventListener('change', updateWeekdayVisibility);
     updateWeekdayVisibility();
 
+    function updateTimeVisibility() {
+      const showTime = toggleTime.checked;
+      timeSection.style.display = showTime ? 'block' : 'none';
+      if (!showTime) {
+        minTimeInput.value = '';
+        maxTimeInput.value = '';
+      }
+    }
+
+    toggleTime.addEventListener('change', updateTimeVisibility);
+    updateTimeVisibility();
+
     function normalizePhone() {
       const digits = phoneInput.value.replace(/\D/g, '').slice(0, 11);
       phoneInput.value = digits;
@@ -1649,23 +1631,6 @@
 
     applyTranslations('zh');
 
-    function isWeChatBrowser() {
-      return /micromessenger/i.test(navigator.userAgent);
-    }
-
-    if (isWeChatBrowser()) {
-      wechatTip.style.display = 'block';
-    }
-
-    copyLinkBtn.addEventListener('click', async () => {
-      const link = window.location.href;
-      try {
-        await navigator.clipboard.writeText(link);
-        copyStatus.textContent = translations[currentLang].wechat_copy_success;
-      } catch (err) {
-        copyStatus.textContent = translations[currentLang].wechat_copy_fail;
-      }
-    });
   </script>
 </body>
 </html>
